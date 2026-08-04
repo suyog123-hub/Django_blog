@@ -32,15 +32,10 @@ ENV/
 # Django
 *.log
 db.sqlite3
-db.sqlite3-journal
-/staticfiles/
-/media/
 
-# PyCharm / IDE
-.idea/
-.vscode/
-*.swp
+
+
 
 # OS
 .DS_Store
-Thumbs.db
+
