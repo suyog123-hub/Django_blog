@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MyBlog{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container navbar-inner">
+            <a class="brand" href="{% url 'home' %}">MyBlog</a>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'blogs' %}">Blog</a></li>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'addBlog' %}">Write Blog</a></li>
+                <li><a href="{% url 'myBlogs' %}">My Blogs</a></li>
+                {% if user.is_staff %}
+                <li><a href="{% url 'pending' %}">Pending</a></li>
+                {% endif %}
+                <li><a href="{% url 'logout' %}">Logout ({{ user.username }})</a></li>
+                {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <p class="alert alert-{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock content %}
+
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 MyBlog. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

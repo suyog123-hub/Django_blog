@@ -1,0 +1,401 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f5f6fa;
+    color: #2d3436;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+main.container {
+    flex: 1;
+    padding: 24px 0 40px;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+    background-color: #2c3e50;
+    padding: 14px 0;
+}
+
+.navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.brand {
+    color: #ffffff;
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.nav-links a {
+    color: #ecf0f1;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    color: #f1c40f;
+}
+
+/* ===== Messages ===== */
+.messages {
+    margin: 16px 0;
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ===== Hero ===== */
+.hero {
+    background: linear-gradient(135deg, #2c3e50, #4a6fa5);
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 44px 32px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+}
+
+.hero p {
+    font-size: 1.05rem;
+    max-width: 620px;
+    margin: 0 auto 22px;
+    color: #dfe6ee;
+}
+
+.hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.hero .btn-primary {
+    background-color: #f1c40f;
+    color: #2c3e50;
+}
+
+.hero .btn-primary:hover {
+    background-color: #d4ac0d;
+}
+
+.hero .btn-secondary {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+.hero .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== Info grid ===== */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin: 20px 0 8px;
+}
+
+.info-box {
+    background-color: #ffffff;
+    border: 1px solid #dfe4ea;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.info-box h3 {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.info-box p {
+    font-size: 0.95rem;
+    color: #57606f;
+}
+
+.steps {
+    margin: 0;
+    padding-left: 20px;
+    color: #57606f;
+    font-size: 0.95rem;
+}
+
+.steps li {
+    margin-bottom: 6px;
+}
+
+/* ===== Page header ===== */
+.page-header {
+    margin: 20px 0;
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+}
+
+/* ===== Cards / blog list ===== */
+.blog-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.card {
+    background-color: #ffffff;
+    border: 1px solid #dfe4ea;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.card-image {
+    width: 100%;
+    max-height: 480px;
+    object-fit: contain;
+    background-color: #eef0f3;
+    border-radius: 6px;
+    margin-bottom: 14px;
+}
+
+.card-meta {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-bottom: 12px;
+}
+
+.card-content {
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+}
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===== Forms ===== */
+.auth-form,
+.form-card {
+    background-color: #ffffff;
+    border: 1px solid #dfe4ea;
+    border-radius: 8px;
+    padding: 28px;
+    max-width: 480px;
+    margin: 30px auto;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.form-card {
+    max-width: 640px;
+}
+
+.auth-form h1,
+.form-card h1 {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+}
+
+.form-group {
+    margin: 14px 0;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #2c3e50;
+}
+
+.auth-link {
+    margin-top: 14px;
+    font-size: 0.9rem;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    display: inline-block;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #2c3e50;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #1a252f;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background-color: #1e7e34;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background-color: #bd2130;
+}
+
+.inline-form {
+    display: inline;
+}
+
+/* ===== Badges ===== */
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.badge-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* ===== Empty / misc ===== */
+.empty-message {
+    text-align: center;
+    padding: 40px 0;
+    color: #7f8c8d;
+}
+
+.landing-cta {
+    background-color: #ffffff;
+    border: 1px solid #dfe4ea;
+    border-radius: 10px;
+    padding: 36px 24px;
+    margin: 28px 0;
+    text-align: center;
+}
+
+.landing-cta h2 {
+    color: #2c3e50;
+    margin-bottom: 6px;
+}
+
+.landing-cta p {
+    color: #57606f;
+    margin-bottom: 18px;
+}
+
+.form-help {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-bottom: 8px;
+}
+
+.thumb {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
+/* ===== Footer ===== */
+.footer {
+    background-color: #2c3e50;
+    color: #bdc3c7;
+    text-align: center;
+    padding: 16px 0;
+    font-size: 0.85rem;
+}
