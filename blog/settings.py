@@ -29,6 +29,12 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
+# Comma-separated list of trusted origins (e.g. for deployment behind a proxy)
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://django-blog-7lqy.onrender.com',
+).split(',')
+
 
 # Application definition
 
