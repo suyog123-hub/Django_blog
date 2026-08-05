@@ -18,7 +18,7 @@ SECRET_KEY =  config('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+ALLOWED_HOSTS = ['*', 'suyogblog.onrender.com', 'www.suyogblog.onrender.com']
 
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
@@ -93,12 +93,16 @@ WSGI_APPLICATION = 'blog.wsgi.application'
 # ---------------------------------------------------------------------------
 # Database
 # ---------------------------------------------------------------------------
-# sq lite database
+# Production uses Render PostgreSQL via the DATABASE_URL env var.
+# Local development falls back to SQLite automatically.
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

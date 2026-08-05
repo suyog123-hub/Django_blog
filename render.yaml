@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: inkwell-blog
+    runtime: python
+    plan: free
+    buildCommand: "python -m pip install --upgrade pip && python -m pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py import_site_data"
+    startCommand: "gunicorn blog.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 60"
+    healthCheckPath: /sitemap.xml
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: inkwell-blog-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.14.0
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.console.EmailBackend
+
+databases:
+  - name: inkwell-blog-db
+    plan: free
+    databaseName: inkwell
+    user: inkwell
