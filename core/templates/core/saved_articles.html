@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Saved articles — Inkwell{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header animate-slide-up">
+        <span class="eyebrow"><i class="fa-solid fa-bookmark"></i> Your library</span>
+        <h1 class="display-font">Saved <span class="text-gradient">articles</span></h1>
+        <p>Everything you've bookmarked, ready to read later.</p>
+    </div>
+
+    {% if blogs %}
+    <div class="masonry stagger">
+        {% for post in blogs %}
+        {% include "core/partials/_post_card.html" with post=post %}
+        {% endfor %}
+    </div>
+    {% include "core/partials/_pagination.html" %}
+    {% else %}
+    <div class="empty-state">
+        <div class="ico"><i class="fa-regular fa-bookmark"></i></div>
+        <h3>Nothing saved yet</h3>
+        <p>Tap the bookmark icon on any article to save it for later.</p>
+        <a href="{% url 'blogs' %}" class="btn btn-primary">Browse articles</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

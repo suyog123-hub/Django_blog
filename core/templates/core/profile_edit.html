@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Settings — Inkwell{% endblock %}
+
+{% block content %}
+<div class="container section-sm">
+    <div class="page-header animate-slide-up" style="padding-top:0">
+        <span class="eyebrow"><i class="fa-solid fa-gear"></i> Account settings</span>
+        <h1 class="display-font">Edit your <span class="text-gradient">profile</span></h1>
+        <p>Manage your public information, avatar and password.</p>
+    </div>
+
+    <div class="grid" style="grid-template-columns: 1fr; gap: 32px; max-width:820px">
+        {% if not user.profile.email_verified %}
+        <div class="card-panel" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+            <span class="badge badge-warning"><i class="fa-solid fa-triangle-exclamation"></i> Unverified email</span>
+            <div style="flex:1;min-width:220px">
+                <p class="text-2 text-sm">Verify your email address to unlock everything on Inkwell.</p>
+            </div>
+            <a href="{% url 'send_verification' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-paper-plane"></i> Send verification</a>
+        </div>
+        {% else %}
+        <div class="card-panel" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+            <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Email verified</span>
+            <div style="flex:1;min-width:220px">
+                <p class="text-2 text-sm">{{ user.email }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card-panel">
+            <h2 class="display-font">Public profile</h2>
+            <p class="text-2 text-sm mb-6">This is how others see you on Inkwell.</p>
+            <form method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="profile" />
+                <div class="field flex gap-4" style="align-items:center">
+                    {% if user.profile.avatar %}
+                    <img class="avatar-lg" style="border-radius:50%" src="{{ user.profile.avatar.url }}" alt="Current avatar" />
+                    {% else %}
+                    <span class="avatar-fallback avatar-lg">{{ user.username|first|upper }}</span>
+                    {% endif %}
+                    <div style="flex:1">
+                        <label for="id_avatar">Profile picture</label>
+                        <input type="file" name="avatar" id="id_avatar" class="form-control" accept="image/*" />
+                        {% if profile_form.avatar.errors %}<ul class="errorlist">{% for e in profile_form.avatar.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="field">
+                        <label for="id_first_name">First name</label>
+                        <input type="text" name="first_name" id="id_first_name" class="form-control" value="{{ user_form.first_name.value|default:user.first_name }}" />
+                    </div>
+                    <div class="field">
+                        <label for="id_last_name">Last name</label>
+                        <input type="text" name="last_name" id="id_last_name" class="form-control" value="{{ user_form.last_name.value|default:user.last_name }}" />
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="id_email">Email</label>
+                    <input type="email" name="email" id="id_email" class="form-control" value="{{ user_form.email.value|default:user.email }}" />
+                    {% if user_form.email.errors %}<ul class="errorlist">{% for e in user_form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div class="field">
+                    <label for="id_bio">Bio</label>
+                    <textarea name="bio" id="id_bio" class="form-control" rows="3" placeholder="Tell readers about yourself…">{{ profile_form.bio.value|default:user.profile.bio }}</textarea>
+                </div>
+                <div class="field">
+                    <label for="id_location">Location</label>
+                    <input type="text" name="location" id="id_location" class="form-control" placeholder="Kathmandu, Nepal" value="{{ profile_form.location.value|default:user.profile.location }}" />
+                </div>
+                <div class="form-row">
+                    <div class="field">
+                        <label for="id_website">Website</label>
+                        <input type="url" name="website" id="id_website" class="form-control" placeholder="https://" value="{{ profile_form.website.value|default:user.profile.website }}" />
+                    </div>
+                    <div class="field">
+                        <label for="id_twitter">Twitter / X handle</label>
+                        <input type="text" name="twitter" id="id_twitter" class="form-control" placeholder="@yourhandle" value="{{ profile_form.twitter.value|default:user.profile.twitter }}" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="field">
+                        <label for="id_github">GitHub</label>
+                        <input type="text" name="github" id="id_github" class="form-control" placeholder="yourname" value="{{ profile_form.github.value|default:user.profile.github }}" />
+                    </div>
+                    <div class="field">
+                        <label for="id_linkedin">LinkedIn</label>
+                        <input type="text" name="linkedin" id="id_linkedin" class="form-control" placeholder="https://linkedin.com/in/…" value="{{ profile_form.linkedin.value|default:user.profile.linkedin }}" />
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save changes</button>
+            </form>
+        </div>
+
+        <div class="card-panel">
+            <h2 class="display-font">Security</h2>
+            <p class="text-2 text-sm mb-6">Keep your account safe with a strong password.</p>
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="password" />
+                <div class="field">
+                    <label for="id_old_password_pw">Current password</label>
+                    <input type="password" name="old_password" id="id_old_password_pw" class="form-control" required />
+                </div>
+                <div class="form-row">
+                    <div class="field">
+                        <label for="id_new_password1_pw">New password</label>
+                        <input type="password" name="new_password1" id="id_new_password1_pw" class="form-control" required />
+                    </div>
+                    <div class="field">
+                        <label for="id_new_password2_pw">Confirm new password</label>
+                        <input type="password" name="new_password2" id="id_new_password2_pw" class="form-control" required />
+                    </div>
+                </div>
+                {% if password_form.errors %}
+                <div class="alert alert-error mb-4"><i class="fa-solid fa-circle-xmark"></i><span>{{ password_form.errors.old_password.0|default:password_form.errors.new_password2.0 }}</span></div>
+                {% endif %}
+                <button type="submit" class="btn btn-secondary"><i class="fa-solid fa-shield-halved"></i> Update password</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

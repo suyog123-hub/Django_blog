@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact — Inkwell{% endblock %}
+{% block meta_description %}Get in touch with the Inkwell team.{% endblock %}
+
+{% block content %}
+<div class="container section-sm">
+    <div class="page-header animate-slide-up" style="padding-top:0">
+        <span class="eyebrow"><i class="fa-solid fa-envelope"></i> Contact us</span>
+        <h1 class="display-font">We'd love to <span class="text-gradient">hear from you</span></h1>
+        <p>Questions, feedback, partnerships or press — drop us a line.</p>
+    </div>
+
+    <div class="contact-grid mt-6">
+        <aside class="contact-info">
+            <div class="item">
+                <span class="ic"><i class="fa-solid fa-envelope"></i></span>
+                <div>
+                    <h4>Email</h4>
+                    <p>hello@inkwell.example</p>
+                </div>
+            </div>
+            <div class="item">
+                <span class="ic"><i class="fa-solid fa-comment"></i></span>
+                <div>
+                    <h4>Support</h4>
+                    <p>We reply within 24 hours on business days.</p>
+                </div>
+            </div>
+            <div class="item">
+                <span class="ic"><i class="fa-solid fa-pen-nib"></i></span>
+                <div>
+                    <h4>Writing help</h4>
+                    <p>Visit our community or ask fellow writers for feedback.</p>
+                </div>
+            </div>
+        </aside>
+
+        <div class="card-panel">
+            <h2 class="display-font">Send a message</h2>
+            <p class="text-2 text-sm mb-6">Fill out the form and we'll get back to you.</p>
+            <form method="POST" action="{% url 'contact' %}" novalidate>
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="field">
+                        <label for="id_name">Your name</label>
+                        <input type="text" name="name" id="id_name" class="form-control" placeholder="Jane Doe" required value="{{ form.name.value|default:'' }}" />
+                        {% if form.name.errors %}<ul class="errorlist">{% for e in form.name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="id_email">Email</label>
+                        <input type="email" name="email" id="id_email" class="form-control" placeholder="you@example.com" required value="{{ form.email.value|default:'' }}" />
+                        {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="id_subject">Subject</label>
+                    <input type="text" name="subject" id="id_subject" class="form-control" placeholder="What's this about?" required value="{{ form.subject.value|default:'' }}" />
+                    {% if form.subject.errors %}<ul class="errorlist">{% for e in form.subject.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div class="field">
+                    <label for="id_message">Message</label>
+                    <textarea name="message" id="id_message" class="form-control" rows="6" placeholder="Tell us everything…" required>{{ form.message.value|default:'' }}</textarea>
+                    {% if form.message.errors %}<ul class="errorlist">{% for e in form.message.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg"><i class="fa-solid fa-paper-plane"></i> Send message</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

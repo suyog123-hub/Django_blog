@@ -1,0 +1,10 @@
+Hi {{ user.username }},
+
+Welcome to Inkwell! Please verify your email address to unlock everything on the platform.
+
+Verify your email:
+{{ link }}
+
+If you didn't create an account, you can safely ignore this email.
+
+— The Inkwell team

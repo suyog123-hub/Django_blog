@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create account — Inkwell{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <div class="auth-card">
+        <div class="brand-lg"><i class="fa-solid fa-feather-pointed"></i></div>
+        <h1 class="display-font">Join Inkwell</h1>
+        <p class="sub">Create your free account and start sharing your stories today.</p>
+
+        {% if form.errors %}
+        <div class="alert alert-error mb-4"><i class="fa-solid fa-circle-xmark"></i><span>Please fix the errors below.</span></div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'register' %}" novalidate>
+            {% csrf_token %}
+            <div class="field">
+                <label for="id_username">Username</label>
+                <input type="text" name="username" id="id_username" class="form-control" placeholder="yourname" required autofocus />
+                {% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="field">
+                <label for="id_email">Email address</label>
+                <input type="email" name="email" id="id_email" class="form-control" placeholder="you@example.com" required />
+                {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="form-row">
+                <div class="field">
+                    <label for="id_first_name">First name <span class="text-3">(optional)</span></label>
+                    <input type="text" name="first_name" id="id_first_name" class="form-control" placeholder="Jane" />
+                </div>
+                <div class="field">
+                    <label for="id_last_name">Last name <span class="text-3">(optional)</span></label>
+                    <input type="text" name="last_name" id="id_last_name" class="form-control" placeholder="Doe" />
+                </div>
+            </div>
+            <div class="field">
+                <label for="id_password1">Password</label>
+                <input type="password" name="password1" id="id_password1" class="form-control" placeholder="At least 8 characters" required />
+                {% if form.password1.errors %}<ul class="errorlist">{% for e in form.password1.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="field">
+                <label for="id_password2">Confirm password</label>
+                <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Repeat your password" required />
+                {% if form.password2.errors %}<ul class="errorlist">{% for e in form.password2.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg"><i class="fa-solid fa-user-plus"></i> Create account</button>
+        </form>
+
+        <div class="auth-divider">already have an account?</div>
+        <p class="auth-switch"><a href="{% url 'login' %}" class="font-semibold">Sign in</a> instead</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+{% load blog_extras %}
+
+{% block title %}{% if query %}Search: {{ query }} — Inkwell{% else %}Search — Inkwell{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:880px">
+    <div class="page-header animate-slide-up">
+        <span class="eyebrow"><i class="fa-solid fa-magnifying-glass"></i> Search the library</span>
+        <h1 class="display-font">Find your <span class="text-gradient">next read</span></h1>
+        <p>Search across titles, content, tags, categories and writers.</p>
+    </div>
+
+    <form method="GET" action="{% url 'search' %}" class="search-box" style="margin-bottom:28px">
+        <div class="search-input-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" name="q" value="{{ query }}" class="form-control" style="padding:16px 20px 16px 48px;font-size:1.05rem;border-radius:16px" placeholder="Try 'django', 'design', 'travel'…" autofocus data-search-input data-target="#search-suggest" />
+            <div class="suggestions" id="search-suggest"></div>
+        </div>
+    </form>
+
+    {% if history %}
+    <div class="flex gap-2 mb-4" style="flex-wrap:wrap;align-items:center">
+        <span class="text-sm text-3"><i class="fa-solid fa-clock-rotate-left"></i> Recent:</span>
+        {% for h in history %}
+        <a class="tag-chip" href="{% url 'search' %}?q={{ h|urlencode }}">{{ h }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if query %}
+    <p class="result-count">Showing results for <b>"{{ query }}"</b> — <b>{{ total }}</b> {{ total|pluralize:"result,results" }}</p>
+
+    <div class="flex gap-2 mb-4" style="align-items:center">
+        <span class="text-sm text-3">Sort:</span>
+        <a class="tag-chip {% if sort == 'relevance' %}badge-accent{% endif %}" href="?q={{ query|urlencode }}&sort=relevance">Relevance</a>
+        <a class="tag-chip {% if sort == 'popular' %}badge-accent{% endif %}" href="?q={{ query|urlencode }}&sort=popular">Most viewed</a>
+        <a class="tag-chip {% if sort == 'liked' %}badge-accent{% endif %}" href="?q={{ query|urlencode }}&sort=liked">Most liked</a>
+    </div>
+
+    {% if results %}
+    <div class="masonry stagger">
+        {% for post in results %}
+        {% include "core/partials/_post_card.html" with post=post %}
+        {% endfor %}
+    </div>
+    {% include "core/partials/_pagination.html" %}
+    {% else %}
+    <div class="empty-state">
+        <div class="ico"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <h3>No results for "{{ query }}"</h3>
+        <p>Double-check your spelling, try fewer words, or explore a popular tag below.</p>
+        {% if suggested_tags %}
+        <div class="flex flex-center gap-2 mt-4" style="flex-wrap:wrap">
+            {% for tag in suggested_tags %}<a class="tag-chip" href="{{ tag.get_absolute_url }}">#{{ tag.name }}</a>{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <div class="ico"><i class="fa-solid fa-sparkles"></i></div>
+        <h3>Discover something new</h3>
+        <p>Search is powerful — try a topic, a tag, or an author's name.</p>
+        {% if suggested_tags %}
+        <div class="flex flex-center gap-2 mt-4" style="flex-wrap:wrap">
+            {% for tag in suggested_tags %}<a class="tag-chip" href="{{ tag.get_absolute_url }}">#{{ tag.name }}</a>{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/search.js' %}"></script>
+{% endblock %}

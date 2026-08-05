@@ -1,0 +1,46 @@
+{% load blog_extras %}
+<article class="post-card{% if flat %} post-card-flat{% endif %}">
+    <a class="post-card-media" href="{{ post.get_absolute_url }}" aria-label="{{ post.title }}">
+        {% if post.cover_image %}
+        <img src="{{ post.cover_image.url }}" alt="{{ post.cover_alt|default:post.title }}" loading="lazy" />
+        {% else %}
+        <div class="ph"><i class="fa-solid fa-image"></i></div>
+        {% endif %}
+        <div class="post-card-badges">
+            {% if post.is_featured %}<span class="badge badge-accent"><i class="fa-solid fa-star"></i> Featured</span>{% endif %}
+            {% if post.is_trending %}<span class="badge badge-gradient"><i class="fa-solid fa-fire"></i> Trending</span>{% endif %}
+        </div>
+    </a>
+    <div class="post-card-body">
+        <div class="post-card-meta">
+            <a class="author" href="{% url 'profile_detail' post.author.username %}">
+                {% if post.author.profile.avatar %}
+                <img class="avatar avatar-sm" src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" loading="lazy" />
+                {% else %}
+                <span class="avatar-fallback avatar-sm">{{ post.author.username|first|upper }}</span>
+                {% endif %}
+                {{ post.author.username }}
+            </a>
+            <span class="dot"></span>
+            <span>{{ post.published_at|date:"M j, Y" }}</span>
+            <span class="dot"></span>
+            <span>{{ post.reading_time_minutes }} min read</span>
+        </div>
+
+        {% if post.category %}<a class="badge badge-neutral" href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>{% endif %}
+
+        <h3 class="post-card-title">
+            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        </h3>
+        <p class="post-card-excerpt">{{ post.excerpt|default:post.content|truncatewords:28 }}</p>
+
+        <div class="post-card-footer">
+            <div class="post-card-stats">
+                <span><i class="fa-solid fa-eye"></i> {{ post.view_count|default:0 }}</span>
+                <span><i class="fa-solid fa-heart"></i> {{ post.like_count|default:0 }}</span>
+                <span><i class="fa-regular fa-comment"></i> {{ post.comment_count|default:0 }}</span>
+            </div>
+            <a class="btn btn-ghost btn-sm" href="{{ post.get_absolute_url }}">Read <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+    </div>
+</article>

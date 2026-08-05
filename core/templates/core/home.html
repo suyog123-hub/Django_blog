@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% load blog_extras %}
+
+{% block title %}Inkwell — Stories worth reading{% endblock %}
+
+{% block content %}
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="container">
+        <div class="hero-inner">
+            <span class="eyebrow"><i class="fa-solid fa-sparkles"></i> Where great stories find a home</span>
+            <h1 class="display-font">Write <span class="text-gradient">beautifully</span>,<br />read <span class="text-gradient">deeply</span>.</h1>
+            <p class="lead">Inkwell is a premium publishing platform for writers, developers and thinkers. Publish in minutes, reach readers who care, and grow your craft.</p>
+
+            <div class="hero-badges">
+                <span class="badge badge-neutral"><i class="fa-solid fa-pen-nib"></i> Markdown editor</span>
+                <span class="badge badge-neutral"><i class="fa-solid fa-shield-heart"></i> Reviewed content</span>
+                <span class="badge badge-neutral"><i class="fa-solid fa-bolt"></i> Lightning fast</span>
+            </div>
+
+            <div class="hero-actions">
+                {% if user.is_authenticated %}
+                <a href="{% url 'blog_create' %}" class="btn btn-primary btn-lg"><i class="fa-solid fa-pen-nib"></i> Start writing</a>
+                <a href="{% url 'blogs' %}" class="btn btn-secondary btn-lg">Explore articles</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg"><i class="fa-solid fa-user-plus"></i> Get started free</a>
+                <a href="{% url 'blogs' %}" class="btn btn-secondary btn-lg">Browse stories</a>
+                {% endif %}
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="num text-gradient" data-count="{{ stats.articles }}">0</div>
+                    <div class="lbl">Articles</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="num text-gradient" data-count="{{ stats.authors }}">0</div>
+                    <div class="lbl">Writers</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="num text-gradient" data-count="{{ stats.views }}">0</div>
+                    <div class="lbl">Reads</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="num text-gradient" data-count="{{ stats.likes }}">0</div>
+                    <div class="lbl">Applause</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ FEATURED BANNER ============ -->
+{% if featured %}
+<section class="section-sm container">
+    {% with post=featured.0 %}
+    <div class="featured-banner reveal">
+        <a class="featured-banner-media" href="{{ post.get_absolute_url }}">
+            {% if post.cover_image %}
+            <img src="{{ post.cover_image.url }}" alt="{{ post.cover_alt|default:post.title }}" loading="lazy" />
+            {% else %}
+            <div class="ph"><i class="fa-solid fa-image"></i></div>
+            {% endif %}
+        </a>
+        <div class="featured-banner-body">
+            <span class="badge badge-gradient"><i class="fa-solid fa-star"></i> Featured story</span>
+            <h2 class="display-font"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+            <p class="text-2">{{ post.excerpt|default:post.content|truncatewords:34 }}</p>
+            <div class="post-card-meta">
+                <a class="author" href="{% url 'profile_detail' post.author.username %}">
+                    {% if post.author.profile.avatar %}<img class="avatar avatar-sm" src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" />{% else %}<span class="avatar-fallback avatar-sm">{{ post.author.username|first|upper }}</span>{% endif %}
+                    {{ post.author.username }}
+                </a>
+                <span class="dot"></span><span>{{ post.published_at|date:"M j, Y" }}</span>
+                <span class="dot"></span><span>{{ post.reading_time_minutes }} min read</span>
+            </div>
+            <div class="mt-4">
+                <a href="{{ post.get_absolute_url }}" class="btn btn-primary">Read the story <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    {% endwith %}
+</section>
+{% endif %}
+
+<div class="container">
+
+    <!-- ============ TRENDING ============ -->
+    {% if trending %}
+    <section class="section-sm reveal">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow"><i class="fa-solid fa-fire"></i> Hot right now</span>
+                <h2 class="display-font">Trending this week</h2>
+                <p>What the community is reading the most right now.</p>
+            </div>
+            <a href="{% url 'blogs' %}?sort=popular" class="btn btn-ghost">View all <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="grid grid-4 stagger">
+            {% for post in trending %}
+            {% include "core/partials/_post_card.html" with post=post %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ============ CATEGORIES ============ -->
+    {% if categories %}
+    <section class="section-sm reveal">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow"><i class="fa-solid fa-folder-tree"></i> Browse by topic</span>
+                <h2 class="display-font">Popular categories</h2>
+                <p>Find your next favourite read by topic.</p>
+            </div>
+        </div>
+        <div class="grid grid-3 stagger">
+            {% for cat in categories %}
+            <a class="cat-card" href="{{ cat.get_absolute_url }}">
+                <span class="cat-icon"><i class="fa-solid {{ cat.icon }}"></i></span>
+                <span>
+                    <h3>{{ cat.name }}</h3>
+                    <p>{{ cat.blog_count }} {{ cat.blog_count|pluralize:"story" }}</p>
+                </span>
+                <i class="fa-solid fa-arrow-right" style="margin-left:auto;color:var(--text-3)"></i>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ============ LATEST + SIDEBAR ============ -->
+    <section class="section reveal">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow"><i class="fa-solid fa-clock-rotate-left"></i> Fresh off the press</span>
+                <h2 class="display-font">Latest stories</h2>
+                <p>The newest articles from our community.</p>
+            </div>
+            <a href="{% url 'blogs' %}" class="btn btn-ghost">Browse all <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1.7fr 1fr; gap: 32px; align-items:start;">
+            <div class="grid grid-2 stagger">
+                {% for post in latest %}
+                {% include "core/partials/_post_card.html" with post=post %}
+                {% endfor %}
+            </div>
+
+            <aside style="position:sticky;top:calc(var(--nav-h) + 20px);display:flex;flex-direction:column;gap:24px;">
+                {% if editor_picks %}
+                <div class="card-panel">
+                    <span class="eyebrow"><i class="fa-solid fa-bookmark"></i> Editor's picks</span>
+                    {% for post in editor_picks %}
+                    <a href="{{ post.get_absolute_url }}" class="flex" style="gap:14px;padding:12px 0;border-bottom:1px solid var(--border);align-items:center;">
+                        {% if post.cover_image %}<img src="{{ post.cover_image.url }}" alt="" style="width:64px;height:52px;object-fit:cover;border-radius:10px" loading="lazy" />{% endif %}
+                        <span>
+                            <strong style="display:block;font-size:.9rem;line-height:1.35;color:var(--text)">{{ post.title|truncatechars:60 }}</strong>
+                            <small style="color:var(--text-3)">{{ post.published_at|date:"M j" }} · {{ post.reading_time_minutes }} min</small>
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if nav_tags %}
+                <div class="card-panel">
+                    <span class="eyebrow"><i class="fa-solid fa-hashtag"></i> Popular tags</span>
+                    <div class="flex flex-wrap gap-2">
+                        {% for tag in nav_tags %}
+                        <a class="tag-chip" href="{{ tag.get_absolute_url }}">#{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if popular %}
+                <div class="card-panel">
+                    <span class="eyebrow"><i class="fa-solid fa-ranking-star"></i> Most read</span>
+                    {% for post in popular %}
+                    <a href="{{ post.get_absolute_url }}" class="flex" style="gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:center;">
+                        <span class="text-gradient font-bold" style="font-size:1.4rem;width:30px">{{ forloop.counter }}</span>
+                        <span>
+                            <strong style="display:block;font-size:.88rem;line-height:1.35;color:var(--text)">{{ post.title|truncatechars:58 }}</strong>
+                            <small style="color:var(--text-3)"><i class="fa-solid fa-eye"></i> {{ post.view_count }}</small>
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </aside>
+        </div>
+    </section>
+
+    <!-- ============ STATS BAND ============ -->
+    <section class="section-sm reveal">
+        <div class="stats-band">
+            <div class="stat-tile"><i class="fa-solid fa-book-open"></i><div class="num" data-count="{{ stats.articles }}">0</div><div class="lbl">Articles published</div></div>
+            <div class="stat-tile"><i class="fa-solid fa-feather"></i><div class="num" data-count="{{ stats.authors }}">0</div><div class="lbl">Active writers</div></div>
+            <div class="stat-tile"><i class="fa-solid fa-eye"></i><div class="num" data-count="{{ stats.views }}">0</div><div class="lbl">Total reads</div></div>
+            <div class="stat-tile"><i class="fa-solid fa-heart"></i><div class="num" data-count="{{ stats.likes }}">0</div><div class="lbl">Likes given</div></div>
+        </div>
+    </section>
+
+    <!-- ============ TOP AUTHORS ============ -->
+    {% if top_authors %}
+    <section class="section reveal">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow"><i class="fa-solid fa-crown"></i> Meet the writers</span>
+                <h2 class="display-font">Featured authors</h2>
+                <p>Voices worth following on Inkwell.</p>
+            </div>
+            <a href="{% url 'authors' %}" class="btn btn-ghost">All writers <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="grid grid-4 stagger">
+            {% for author in top_authors %}
+            <div class="author-card">
+                {% if author.profile.avatar %}
+                <img class="avatar avatar-lg" src="{{ author.profile.avatar.url }}" alt="{{ author.username }}" loading="lazy" />
+                {% else %}
+                <span class="avatar-fallback avatar-lg">{{ author.username|first|upper }}</span>
+                {% endif %}
+                <div class="who">
+                    <h3><a href="{% url 'profile_detail' author.username %}" style="color:var(--text)">{{ author.username }}</a></h3>
+                    <p>{{ author.published_count }} {{ author.published_count|pluralize:"story" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ============ TESTIMONIALS ============ -->
+    <section class="section reveal">
+        <div class="section-head" style="justify-content:center;text-align:center">
+            <div>
+                <span class="eyebrow"><i class="fa-solid fa-comment-dots"></i> Loved by readers</span>
+                <h2 class="display-font">What people say</h2>
+            </div>
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial">
+                <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                <p>"The cleanest writing experience I've used. It feels like a premium product — fast, focused and beautiful."</p>
+                <div class="who"><span class="avatar-fallback">A</span><span><span class="n">Aarav Shah</span><div class="r">Full-stack developer</div></span></div>
+            </div>
+            <div class="testimonial">
+                <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                <p>"Publishing my essays here tripled my readership in a month. The reading experience is genuinely delightful."</p>
+                <div class="who"><span class="avatar-fallback">M</span><span><span class="n">Maya Patel</span><div class="r">Product designer</div></span></div>
+            </div>
+            <div class="testimonial">
+                <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
+                <p>"Dark mode, smooth animations, zero clutter. It's the blog platform I'd have built myself."</p>
+                <div class="who"><span class="avatar-fallback">D</span><span><span class="n">Daniel Chen</span><div class="r">Technical writer</div></span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ NEWSLETTER ============ -->
+    <section class="section-sm reveal">
+        <div class="newsletter-card">
+            <div class="newsletter-inner">
+                <span class="eyebrow"><i class="fa-solid fa-paper-plane"></i> The Inkwell newsletter</span>
+                <h2 class="display-font text-lg" style="font-size:clamp(1.5rem,3vw,2.2rem)">One great idea, every Sunday</h2>
+                <p class="text-2 mt-2">The best of Inkwell, curated and delivered to your inbox every Sunday. No spam, ever.</p>
+                <form class="newsletter-form" method="POST" action="{% url 'newsletter_subscribe' %}">
+                    {% csrf_token %}
+                    <input type="email" name="email" class="form-control" placeholder="you@example.com" required aria-label="Email address" />
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-envelope"></i> Subscribe</button>
+                </form>
+                <p class="newsletter-note">Unsubscribe anytime with one click.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="section-sm reveal">
+        <div class="cta-card">
+            <h2 class="display-font">Ready to share your story?</h2>
+            <p>Your words deserve a beautiful home. Start writing on Inkwell today — free forever for writers.</p>
+            <div class="hero-actions">
+                {% if user.is_authenticated %}
+                <a href="{% url 'blog_create' %}" class="btn btn-lg"><i class="fa-solid fa-pen-nib"></i> Write your story</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-lg"><i class="fa-solid fa-user-plus"></i> Create free account</a>
+                <a href="{% url 'login' %}" class="btn btn-lg" style="background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5)">Sign in</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

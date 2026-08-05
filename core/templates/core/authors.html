@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Writers — Inkwell{% endblock %}
+{% block meta_description %}Meet the writers publishing on Inkwell.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header animate-slide-up">
+        <span class="eyebrow"><i class="fa-solid fa-users"></i> The community</span>
+        <h1 class="display-font">Meet our <span class="text-gradient">writers</span></h1>
+        <p>Thoughtful voices publishing stories, ideas and craft on Inkwell.</p>
+    </div>
+
+    {% if authors %}
+    <div class="grid grid-3 stagger">
+        {% for author in authors %}
+        <div class="author-card">
+            <a href="{% url 'profile_detail' author.username %}">
+                {% if author.profile.avatar %}
+                <img class="avatar avatar-lg" src="{{ author.profile.avatar.url }}" alt="{{ author.username }}" loading="lazy" />
+                {% else %}
+                <span class="avatar-fallback avatar-lg">{{ author.username|first|upper }}</span>
+                {% endif %}
+            </a>
+            <div class="who">
+                <h3><a href="{% url 'profile_detail' author.username %}" style="color:var(--text)">{{ author.get_full_name|default:author.username }}</a></h3>
+                <p>@{{ author.username }}</p>
+                <p class="mt-2" style="white-space:normal">{{ author.profile.bio|truncatechars:80 }}</p>
+                <div class="flex gap-2 mt-2" style="align-items:center">
+                    <span class="badge badge-neutral">{{ author.published_count }} stories</span>
+                    <span class="badge badge-neutral"><i class="fa-solid fa-eye"></i> {{ author.total_views|default:0 }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="ico"><i class="fa-solid fa-users"></i></div>
+        <h3>No writers yet</h3>
+        <p>Be the first to publish a story on Inkwell.</p>
+        <a href="{% url 'register' %}" class="btn btn-primary">Get started</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

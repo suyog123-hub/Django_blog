@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Confirm delete — Inkwell{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <div class="auth-card" style="text-align:center">
+        <div class="brand-lg" style="margin-inline:auto;background:var(--danger)"><i class="fa-solid fa-trash"></i></div>
+        <h1 class="display-font">Delete this story?</h1>
+        <p class="sub">"{{ blog.title }}" will be permanently removed. This can't be undone.</p>
+        <form method="POST" action="{% url 'delete_blog' blog.pk %}">
+            {% csrf_token %}
+            <div class="flex gap-3" style="justify-content:center">
+                <a href="{% url 'my_blogs' %}" class="btn btn-secondary btn-lg">Cancel</a>
+                <button type="submit" class="btn btn-danger btn-lg"><i class="fa-solid fa-trash"></i> Delete forever</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

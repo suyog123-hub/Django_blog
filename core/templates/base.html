@@ -1,81 +1,86 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}MyBlog{% endblock title %}</title>
+    <title>{% block title %}Inkwell — Stories worth reading{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Inkwell is a premium blogging platform for writers, developers and thinkers.{% endblock %}" />
+
+    {% block meta_extra %}{% endblock %}
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Inkwell" />
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+    <meta property="og:title" content="{% block og_title %}Inkwell{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}Inkwell — Stories worth reading.{% endblock %}" />
+    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    {% block og_image %}<meta property="og:image" content="" />{% endblock %}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{% block twitter_title %}Inkwell{% endblock %}" />
+    <meta name="twitter:description" content="{% block twitter_description %}Inkwell — Stories worth reading.{% endblock %}" />
+    {% block twitter_image %}{% endblock %}
+
+    <link rel="canonical" href="{{ request.build_absolute_uri }}" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236366f1'/><text x='50' y='68' font-size='54' text-anchor='middle' fill='white' font-family='Georgia'>I</text></svg>" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Icons & syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme" />
+
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
-<body>
+<body data-autosave-url="{% if is_edit %}{% url 'autosave' blog.slug %}{% endif %}">
 
-    <nav class="navbar">
-        <div class="container navbar-inner">
-            <a class="brand" href="{% url 'home' %}">
-                <i class="fas fa-feather-alt"></i> MyBlog
-            </a>
-            <ul class="nav-links">
-                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="{% url 'blogs' %}"><i class="fas fa-blog"></i> Blog</a></li>
+    <div class="read-progress" aria-hidden="true"></div>
 
-                {% if user.is_authenticated %}
-                    <!-- Authenticated user links -->
+    <div class="page-loader" aria-hidden="true">
+        <div class="loader-ring"></div>
+    </div>
 
-                    {% if user.is_staff %}
-                        <li><a href="{% url 'pending' %}"><i class="fas fa-clock"></i> Pending</a></li>
-                    {% endif %}
+    {% include "core/partials/_navbar.html" %}
 
-                    <!-- Profile link (only for logged-in users) -->
-                    <li class="nav-profile">
-                        <a href="{% url 'profile' %}" class="profile-link">
-                            <i class="fas fa-user-circle"></i>
-                            <span>{{ user.username }}</span>
-                            <span class="profile-badge">Profile</span>
-                        </a>
-                    </li>
-
-                    <li><a href="{% url 'logout' %}" class="nav-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-
-                {% else %}
-                    <!-- Guest links -->
-                    <li><a href="{% url 'login' %}" class="nav-login"><i class="fas fa-key"></i> Login</a></li>
-                    <li><a href="{% url 'register' %}" class="nav-register"><i class="fas fa-user-plus"></i> Register</a></li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
-
-    <main class="container main-content">
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        {% block content %}
-        {% endblock content %}
+    <main class="main-content">
+        {% block content %}{% endblock %}
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>
-                <i class="fas fa-crown"></i>
-                &copy; 2026 <span class="footer-brand">MyBlog</span>.
-                Crafted with <i class="fas fa-heart" style="color: #ef4444;"></i>
-                <span class="footer-divider">|</span>
-                All rights reserved.
-            </p>
-        </div>
-    </footer>
+    {% include "core/partials/_footer.html" %}
 
+    <button class="to-top" aria-label="Scroll to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <div class="lightbox" aria-hidden="true">
+        <img src="" alt="Expanded image" />
+        <button class="lightbox-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }}">
+            <i class="fa-solid fa-{% if message.tags == 'success' %}circle-check{% elif message.tags == 'error' %}circle-xmark{% elif message.tags == 'warning' %}triangle-exclamation{% else %}circle-info{% endif %}"></i>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll("pre code").forEach(function (el) {
+                hljs.highlightElement(el);
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

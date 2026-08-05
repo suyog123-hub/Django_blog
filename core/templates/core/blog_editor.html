@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} — Inkwell{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header animate-slide-up" style="padding-bottom:8px">
+        <span class="eyebrow"><i class="fa-solid fa-pen-nib"></i> The editor</span>
+        <h1 class="display-font">{{ title }}</h1>
+        <p>Write in Markdown, preview live, and publish when you're ready.</p>
+    </div>
+
+    <div class="flex-between mb-6" style="align-items:center">
+        <div class="editor-status" data-label>
+            <span class="saved-dot"></span> <span data-label>Draft auto-save active</span>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'my_blogs' %}" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to my stories</a>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="blog-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-error mb-4"><i class="fa-solid fa-circle-xmark"></i><span>{{ form.non_field_errors.0 }}</span></div>{% endif %}
+
+        <div class="field">
+            <label for="id_title">Title</label>
+            <input type="text" name="title" id="id_title" class="form-control" style="font-size:1.4rem;font-weight:700;padding:16px 20px" placeholder="A compelling title…" value="{{ form.title.value|default:'' }}" required />
+            {% if form.title.errors %}<ul class="errorlist">{% for e in form.title.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        <div class="editor-layout mb-6">
+            <div class="editor-panel">
+                <div class="editor-toolbar">
+                    <div class="tools">
+                        <button type="button" data-md="**" title="Bold"><i class="fa-solid fa-bold"></i></button>
+                        <button type="button" data-md="*" title="Italic"><i class="fa-solid fa-italic"></i></button>
+                        <button type="button" data-md="#" title="Heading"><i class="fa-solid fa-heading"></i></button>
+                        <button type="button" data-md=">" title="Quote"><i class="fa-solid fa-quote-right"></i></button>
+                        <button type="button" data-md="```\n\n```" title="Code block"><i class="fa-solid fa-code"></i></button>
+                        <button type="button" data-md="- " title="List"><i class="fa-solid fa-list-ul"></i></button>
+                        <button type="button" data-md="[text](https://)" title="Link"><i class="fa-solid fa-link"></i></button>
+                        <button type="button" data-md="![alt](url)" title="Image"><i class="fa-solid fa-image"></i></button>
+                    </div>
+                    <span class="text-xs text-3"><i class="fa-brands fa-markdown"></i> Markdown supported</span>
+                </div>
+                <div class="editor-body">
+                    <textarea name="content" id="id_content" placeholder="Start writing in Markdown…">{{ form.content.value|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <div class="editor-panel">
+                <div class="editor-toolbar"><span class="text-xs text-3"><i class="fa-solid fa-eye"></i> Live preview</span></div>
+                <div class="editor-preview article-prose" id="editor-preview"></div>
+            </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns:1fr 1fr; gap:24px" id="cover-meta">
+            <div>
+                <div class="dropzone" id="dropzone">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <p>Drop a cover image here, or click to browse</p>
+                    <p class="text-xs mt-2">JPEG, PNG, WebP or GIF · max 5 MB</p>
+                </div>
+                <input type="file" name="cover_image" id="image-upload-input" class="hidden" style="display:none" accept="image/*" />
+                {% if form.cover_image.errors %}<ul class="errorlist">{% for e in form.cover_image.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                {% if blog.cover_image %}
+                <p class="text-sm text-3 mt-2"><i class="fa-solid fa-circle-info"></i> Current cover will be kept if you upload nothing.</p>
+                {% endif %}
+
+                <div class="field mt-4">
+                    <label for="id_cover_alt">Cover alt text <span class="text-3">(for accessibility &amp; SEO)</span></label>
+                    <input type="text" name="cover_alt" id="id_cover_alt" class="form-control" value="{{ form.cover_alt.value|default:'' }}" placeholder="Describe the image…" />
+                </div>
+                <div class="field">
+                    <label for="id_excerpt">Excerpt</label>
+                    <textarea name="excerpt" id="id_excerpt" class="form-control" rows="3" placeholder="Short summary shown on cards (optional)">{{ form.excerpt.value|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <div class="seo-box">
+                <h3 style="font-size:1.05rem;margin-bottom:14px"><i class="fa-solid fa-magnifying-glass" style="color:var(--accent)"></i> Publication &amp; SEO</h3>
+                <div class="field">
+                    <label for="id_category">Category</label>
+                    <select name="category" id="id_category" class="form-control">
+                        <option value="">No category</option>
+                        {% for choice in form.category.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if form.category.value|stringformat:"s" == choice.pk|stringformat:"s" %}selected{% endif %}>{{ choice.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="id_tags_input">Tags <span class="text-3">(comma separated)</span></label>
+                    <input type="text" name="tags_input" id="id_tags_input" class="form-control" placeholder="python, django, web" value="{{ form.tags_input.value|default:'' }}" />
+                </div>
+                <div class="field">
+                    <label for="id_status">Status</label>
+                    <select name="status" id="id_status" class="form-control">
+                        <option value="draft" {% if form.status.value == 'draft' %}selected{% endif %}>Draft — save privately</option>
+                        <option value="published" {% if form.status.value == 'published' %}selected{% endif %}>Published — go live</option>
+                        {% if user.is_staff %}<option value="archived" {% if form.status.value == 'archived' %}selected{% endif %}>Archived</option>{% endif %}
+                    </select>
+                    <p class="help">Pick <em>Published</em> with a future date to schedule.</p>
+                </div>
+                <div class="field">
+                    <label for="id_published_at">Schedule publish date</label>
+                    <input type="datetime-local" name="published_at" id="id_published_at" class="form-control" value="{{ form.published_at.value|date:'Y-m-d\TH:i'|default:'' }}" />
+                </div>
+                <hr class="divider" style="margin:18px 0" />
+                <div class="field">
+                    <label for="id_seo_title">SEO title <span class="text-3">(max 70)</span></label>
+                    <input type="text" name="seo_title" id="id_seo_title" class="form-control" data-count-limit="70" data-counter="#seo-title-count" value="{{ form.seo_title.value|default:'' }}" />
+                    <div class="char-count" id="seo-title-count"></div>
+                </div>
+                <div class="field">
+                    <label for="id_seo_description">Meta description <span class="text-3">(max 160)</span></label>
+                    <textarea name="seo_description" id="id_seo_description" class="form-control" rows="2" data-count-limit="160" data-counter="#seo-desc-count">{{ form.seo_description.value|default:'' }}</textarea>
+                    <div class="char-count" id="seo-desc-count"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3 mt-6" style="flex-wrap:wrap">
+            <button type="submit" class="btn btn-primary btn-lg"><i class="fa-solid fa-paper-plane"></i> Save &amp; {{ is_edit|yesno:"update,continue" }}</button>
+            <button type="submit" name="save_draft" value="1" class="btn btn-secondary btn-lg"><i class="fa-solid fa-floppy-disk"></i> Save as draft</button>
+            {% if is_edit %}
+            <span class="text-sm text-3" style="align-self:center"><i class="fa-solid fa-circle-info"></i> URL: /blog/{{ blog.slug }}/</span>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/editor.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.get_full_name|default:profile_user.username }} — Inkwell{% endblock %}
+{% block meta_description %}{{ profile.bio|default:profile_user.username }}{% endblock %}
+{% block og_type %}profile{% endblock %}
+{% block og_title %}{{ profile_user.get_full_name|default:profile_user.username }}{% endblock %}
+
+{% block content %}
+<section class="profile-hero">
+    <div class="container">
+        <div class="profile-cover"></div>
+        <div class="profile-card">
+            <div class="profile-avatar-wrap">
+                {% if profile.avatar %}
+                <img class="avatar avatar-xl" src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" />
+                {% else %}
+                <span class="avatar-fallback avatar-xl">{{ profile_user.username|first|upper }}</span>
+                {% endif %}
+            </div>
+            <div class="profile-identity">
+                <h1 class="display-font">{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+                <div class="handle">@{{ profile_user.username }} · Joined {{ profile_user.date_joined|date:"M Y" }}</div>
+                {% if profile.bio %}<p class="bio">{{ profile.bio }}</p>{% endif %}
+                <div class="profile-social">
+                    {% if profile.website %}<a href="{{ profile.website }}" target="_blank" rel="noopener" aria-label="Website"><i class="fa-solid fa-globe"></i></a>{% endif %}
+                    {% if profile.twitter %}<a href="https://twitter.com/{{ profile.twitter }}" target="_blank" rel="noopener" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>{% endif %}
+                    {% if profile.github %}<a href="https://github.com/{{ profile.github }}" target="_blank" rel="noopener" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>{% endif %}
+                    {% if profile.linkedin %}<a href="{{ profile.linkedin }}" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>{% endif %}
+                </div>
+            </div>
+            <div class="profile-actions-right">
+                {% if is_own %}
+                <a href="{% url 'profile_edit' %}" class="btn btn-secondary"><i class="fa-solid fa-gear"></i> Edit profile</a>
+                <a href="{% url 'blog_create' %}" class="btn btn-primary"><i class="fa-solid fa-pen-nib"></i> Write</a>
+                {% elif user.is_authenticated %}
+                <button class="btn btn-outline" data-follow-btn data-url="{% url 'toggle_follow' profile_user.username %}">
+                    {% if is_following %}<i class="fa-solid fa-user-check"></i> Following{% else %}<i class="fa-solid fa-plus"></i> Follow{% endif %}
+                </button>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline"><i class="fa-solid fa-plus"></i> Follow</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container section-sm">
+    <div class="profile-stats-row">
+        <div class="stat-tile"><i class="fa-solid fa-file-lines"></i><div class="num">{{ profile_user.blogs.published|length }}</div><div class="lbl">Published</div></div>
+        <div class="stat-tile"><i class="fa-solid fa-eye"></i><div class="num">{{ profile.total_views }}</div><div class="lbl">Total views</div></div>
+        <div class="stat-tile"><i class="fa-solid fa-users"></i><div class="num">{{ profile.followers_count }}</div><div class="lbl">Followers</div></div>
+        <div class="stat-tile"><i class="fa-solid fa-heart"></i><div class="num">{{ profile.total_likes }}</div><div class="lbl">Likes</div></div>
+    </div>
+
+    <div class="section-head">
+        <div>
+            <span class="eyebrow"><i class="fa-solid fa-file-lines"></i> Recent work</span>
+            <h2 class="display-font">Articles by {{ profile_user.username }}</h2>
+        </div>
+    </div>
+
+    {% if blogs %}
+    <div class="masonry stagger">
+        {% for post in blogs %}
+        {% include "core/partials/_post_card.html" with post=post %}
+        {% endfor %}
+    </div>
+    {% include "core/partials/_pagination.html" %}
+    {% else %}
+    <div class="empty-state">
+        <div class="ico"><i class="fa-solid fa-feather-pointed"></i></div>
+        <h3>No published articles yet</h3>
+        {% if is_own %}
+        <p>Time to share your first story with the world!</p>
+        <a href="{% url 'blog_create' %}" class="btn btn-primary">Write your first story</a>
+        {% else %}
+        <p>Check back soon — {{ profile_user.username }} is crafting something.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main.js' %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var btn = document.querySelector("[data-follow-btn]");
+    if (btn) btn.addEventListener("click", function () {
+        window.Inkwell.post(btn.getAttribute("data-url")).then(function (data) {
+            if (data.error) return;
+            btn.innerHTML = data.following ? '<i class="fa-solid fa-user-check"></i> Following' : '<i class="fa-solid fa-plus"></i> Follow';
+            var stat = document.querySelector(".profile-stats-row .stat-tile:nth-child(3) .num");
+            if (stat && data.count !== undefined) stat.textContent = data.count;
+        });
+    });
+});
+</script>
+{% endblock %}

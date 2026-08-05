@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+{% load static %}
+{% load blog_extras %}
+
+{% block title %}{{ blog.seo_title|default:blog.title }} — Inkwell{% endblock %}
+{% block meta_description %}{{ blog.seo_description|default:blog.excerpt|default:blog.content|truncatechars:160 }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ blog.title }}{% endblock %}
+{% block og_description %}{{ blog.excerpt|default:blog.content|truncatechars:160 }}{% endblock %}
+{% block og_image %}
+{% if blog.cover_image %}<meta property="og:image" content="{{ request.build_absolute_uri }}{{ blog.cover_image.url }}" />{% endif %}
+{% endblock %}
+{% block twitter_title %}{{ blog.title }}{% endblock %}
+{% block twitter_description %}{{ blog.excerpt|default:blog.content|truncatechars:160 }}{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<header class="blog-hero">
+    <div class="container">
+        <div class="cats">
+            {% if blog.category %}
+            <a class="badge badge-accent" href="{{ blog.category.get_absolute_url }}"><i class="fa-solid {{ blog.category.icon }}"></i> {{ blog.category.name }}</a>
+            {% endif %}
+            {% if blog.is_featured %}<span class="badge badge-gradient"><i class="fa-solid fa-star"></i> Featured</span>{% endif %}
+            {% if blog.is_trending %}<span class="badge badge-warning"><i class="fa-solid fa-fire"></i> Trending</span>{% endif %}
+        </div>
+
+        <h1 class="display-font animate-slide-up">{{ blog.title }}</h1>
+        {% if blog.excerpt %}<p class="lead">{{ blog.excerpt }}</p>{% endif %}
+
+        <div class="byline">
+            <div class="who">
+                <a href="{% url 'profile_detail' blog.author.username %}">
+                    {% if blog.author.profile.avatar %}
+                    <img class="avatar" src="{{ blog.author.profile.avatar.url }}" alt="{{ blog.author.username }}" loading="lazy" />
+                    {% else %}
+                    <span class="avatar-fallback">{{ blog.author.username|first|upper }}</span>
+                    {% endif %}
+                </a>
+                <div>
+                    <div class="n"><a href="{% url 'profile_detail' blog.author.username %}">{{ blog.author.get_full_name|default:blog.author.username }}</a></div>
+                    <div class="meta">
+                        Published {{ blog.published_at|date:"F j, Y" }} · {{ blog.reading_time_minutes }} min read · <i class="fa-solid fa-eye"></i> {{ blog.view_count }}
+                    </div>
+                </div>
+            </div>
+            <div class="actions">
+                <button type="button" class="icon-btn {% if is_liked %}active{% endif %}" data-like-btn data-url="{% url 'toggle_like' blog.pk %}" data-count-target="#like-count" aria-pressed="{{ is_liked|yesno:'true,false' }}">
+                    <i class="fa-{% if is_liked %}solid{% else %}regular{% endif %} fa-heart" data-icon></i>
+                    <span id="like-count">{{ blog.like_count }}</span>
+                </button>
+                <button type="button" class="icon-btn {% if is_bookmarked %}active{% endif %}" data-bookmark-btn data-url="{% url 'toggle_bookmark' blog.pk %}" data-count-target="#bookmark-count" aria-pressed="{{ is_bookmarked|yesno:'true,false' }}">
+                    <i class="fa-{% if is_bookmarked %}solid{% else %}regular{% endif %} fa-bookmark"></i>
+                    <span id="bookmark-count">{{ blog.bookmark_count }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- COVER -->
+<div class="container">
+    <div class="cover-wrap">
+        {% if blog.cover_image %}
+        <img src="{{ blog.cover_image.url }}" alt="{{ blog.cover_alt|default:blog.title }}" data-lightbox="{{ blog.cover_image.url }}" />
+        {% else %}
+        <div class="ph"><i class="fa-solid fa-image"></i></div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ARTICLE -->
+<div class="container">
+    <div class="article-layout">
+        <article class="article-prose">
+            {{ blog.content|md|safe }}
+
+            <div class="share-row">
+                <span class="lbl">Share</span>
+                <button class="share-btn x" data-share-x aria-label="Share on X"><i class="fa-brands fa-x-twitter"></i></button>
+                <button class="share-btn facebook" data-share-facebook aria-label="Share on Facebook"><i class="fa-brands fa-facebook-f"></i></button>
+                <button class="share-btn linkedin" data-share-linkedin aria-label="Share on LinkedIn"><i class="fa-brands fa-linkedin-in"></i></button>
+                <button class="share-btn whatsapp" data-share-whatsapp aria-label="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+                <button class="share-btn copy" data-copy-link aria-label="Copy link"><i class="fa-solid fa-link"></i></button>
+            </div>
+
+            <!-- Author box -->
+            <div class="card-panel mt-6" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+                <a href="{% url 'profile_detail' blog.author.username %}">
+                    {% if blog.author.profile.avatar %}
+                    <img class="avatar-xl" src="{{ blog.author.profile.avatar.url }}" alt="{{ blog.author.username }}" loading="lazy" />
+                    {% else %}
+                    <span class="avatar-fallback avatar-xl">{{ blog.author.username|first|upper }}</span>
+                    {% endif %}
+                </a>
+                <div style="flex:1;min-width:220px">
+                    <h3 style="font-size:1.2rem"><a href="{% url 'profile_detail' blog.author.username %}">{{ blog.author.get_full_name|default:blog.author.username }}</a></h3>
+                    <p class="text-2 text-sm">{{ blog.author.profile.bio|default:"Loves to write, read and share ideas on Inkwell." }}</p>
+                    <div class="flex gap-2 mt-2" style="align-items:center">
+                        <a class="badge badge-neutral" href="{% url 'profile_detail' blog.author.username %}">{{ blog.author.blogs.count }} stories</a>
+                        {% if user.is_authenticated and user != blog.author %}
+                        <button class="btn btn-outline btn-sm" data-follow-btn data-url="{% url 'toggle_follow' blog.author.username %}">
+                            {% if is_following_author %}Following{% else %}<i class="fa-solid fa-plus"></i> Follow{% endif %}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prev / next -->
+            <div class="pager">
+                {% if previous_post %}
+                <a href="{{ previous_post.get_absolute_url }}">
+                    <span class="dir"><i class="fa-solid fa-arrow-left"></i> Previous</span>
+                    <span class="t">{{ previous_post.title|truncatechars:80 }}</span>
+                </a>
+                {% else %}<span></span>{% endif %}
+                {% if next_post %}
+                <a href="{{ next_post.get_absolute_url }}" class="next">
+                    <span class="dir">Next <i class="fa-solid fa-arrow-right"></i></span>
+                    <span class="t">{{ next_post.title|truncatechars:80 }}</span>
+                </a>
+                {% endif %}
+            </div>
+        </article>
+
+        <!-- TOC / sidebar -->
+        <aside class="toc-box">
+            {% with toc=blog.content|toc %}
+            {% if toc %}
+            <div class="toc-card">
+                <h4><i class="fa-solid fa-list"></i> Table of contents</h4>
+                <ul class="toc-list">
+                    {% for item in toc %}
+                    <li><a href="#{{ item.id }}" class="lv{{ item.level }}">{{ item.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% if blog.tags.all %}
+            <div class="toc-card mt-4">
+                <h4><i class="fa-solid fa-hashtag"></i> Tags</h4>
+                <div class="tag-row">
+                    {% for tag in blog.tags.all %}
+                    <a class="tag-chip" href="{{ tag.get_absolute_url }}">#{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="toc-card mt-4">
+                <h4><i class="fa-solid fa-hand-point-right"></i> Next read</h4>
+                {% if related.0 %}
+                <a href="{{ related.0.get_absolute_url }}" style="display:block">
+                    <h5 style="font-size:.95rem;line-height:1.4;color:var(--text);margin-bottom:6px">{{ related.0.title|truncatechars:70 }}</h5>
+                    <span class="text-3 text-xs"><i class="fa-solid fa-eye"></i> {{ related.0.view_count }} reads · {{ related.0.reading_time_minutes }} min</span>
+                </a>
+                {% else %}
+                <p class="text-3 text-sm">No more articles right now. Check back soon!</p>
+                {% endif %}
+            </div>
+        </aside>
+    </div>
+</div>
+
+<!-- COMMENTS -->
+<div class="container" id="comments" style="max-width:880px">
+    <section class="comments">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow"><i class="fa-solid fa-comments"></i> Discussion</span>
+                <h2 class="display-font">{{ comment_count }} {{ comment_count|pluralize:"comment,comments" }}</h2>
+            </div>
+        </div>
+
+        {% if comments %}
+        <div class="comments">
+            {% for comment in comments %}
+            <div class="comment-card">
+                <div class="comment-head">
+                    <a href="{% url 'profile_detail' comment.author.username %}">
+                        {% if comment.author.profile.avatar %}<img class="avatar avatar-sm" src="{{ comment.author.profile.avatar.url }}" alt="{{ comment.author.username }}" />{% else %}<span class="avatar-fallback avatar-sm">{{ comment.author.username|first|upper }}</span>{% endif %}
+                    </a>
+                    <div>
+                        <div class="n"><a href="{% url 'profile_detail' comment.author.username %}">{{ comment.author.username }}</a></div>
+                        <div class="d">{{ comment.created_at|timesince_short }} ago</div>
+                    </div>
+                </div>
+                <div class="comment-body">{{ comment.content|linebreaksbr }}</div>
+                <div class="comment-foot">
+                    <button class="{% if user in comment.likes.all %}liked{% endif %}" data-comment-like data-url="{% url 'toggle_comment_like' comment.pk %}" data-count-target="#comment-like-{{ comment.pk }}">
+                        <i class="fa-solid fa-heart"></i> <span id="comment-like-{{ comment.pk }}">{{ comment.like_count }}</span>
+                    </button>
+                    {% if user.is_authenticated %}
+                    <button class="reply-link" data-reply-toggle="reply-{{ comment.pk }}" data-comment-id="{{ comment.pk }}">Reply</button>
+                    {% endif %}
+                </div>
+
+                {% if comment.replies.all %}
+                <div class="comment-replies">
+                    {% for reply in comment.replies.all %}
+                    {% if reply.is_approved %}
+                    <div class="comment-card" style="margin-bottom:10px">
+                        <div class="comment-head">
+                            <a href="{% url 'profile_detail' reply.author.username %}">
+                                {% if reply.author.profile.avatar %}<img class="avatar avatar-sm" src="{{ reply.author.profile.avatar.url }}" alt="{{ reply.author.username }}" />{% else %}<span class="avatar-fallback avatar-sm">{{ reply.author.username|first|upper }}</span>{% endif %}
+                            </a>
+                            <div>
+                                <div class="n"><a href="{% url 'profile_detail' reply.author.username %}">{{ reply.author.username }}</a></div>
+                                <div class="d">{{ reply.created_at|timesince_short }} ago</div>
+                            </div>
+                        </div>
+                        <div class="comment-body">{{ reply.content|linebreaksbr }}</div>
+                        <div class="comment-foot">
+                            <button class="{% if user in reply.likes.all %}liked{% endif %}" data-comment-like data-url="{% url 'toggle_comment_like' reply.pk %}" data-count-target="#comment-like-{{ reply.pk }}">
+                                <i class="fa-solid fa-heart"></i> <span id="comment-like-{{ reply.pk }}">{{ reply.like_count }}</span>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="comment-form-wrap hidden-form" id="reply-{{ comment.pk }}">
+                    <form method="POST" action="{% url 'add_comment' blog.pk %}" class="card-panel" style="padding:16px">
+                        {% csrf_token %}
+                        <input type="hidden" name="parent_id" value="{{ comment.pk }}" />
+                        <textarea name="content" class="form-control" rows="2" placeholder="Write a reply…" required></textarea>
+                        <button class="btn btn-primary btn-sm mt-2" type="submit">Reply</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="ico"><i class="fa-regular fa-comment-dots"></i></div>
+            <h3>Start the conversation</h3>
+            <p>Be the first to share your thoughts on this article.</p>
+        </div>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        <div class="card-panel mt-6" style="margin-top:28px">
+            <h2>Leave a comment</h2>
+            <p class="text-2 text-sm mb-4">Join the discussion. Be kind and constructive.</p>
+            <form method="POST" action="{% url 'add_comment' blog.pk %}">
+                {% csrf_token %}
+                <div class="field">
+                    {{ comment_form.content }}
+                </div>
+                <button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> Post comment</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="card-panel mt-6" style="text-align:center">
+            <h3 class="mb-2">Want to join the discussion?</h3>
+            <p class="text-2 text-sm mb-4">Sign in to leave a comment and show some love.</p>
+            <div class="flex flex-center gap-2">
+                <a href="{% url 'login' %}" class="btn btn-primary">Sign in</a>
+                <a href="{% url 'register' %}" class="btn btn-secondary">Create account</a>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- RELATED -->
+{% if related %}
+<div class="container section-sm">
+    <div class="section-head">
+        <div>
+            <span class="eyebrow"><i class="fa-solid fa-link"></i> Keep reading</span>
+            <h2 class="display-font">Related articles</h2>
+        </div>
+    </div>
+    <div class="grid grid-3 stagger">
+        {% for post in related %}
+        {% include "core/partials/_post_card.html" with post=post %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/blog-detail.js' %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var followBtn = document.querySelector("[data-follow-btn]");
+    if (followBtn) {
+        followBtn.addEventListener("click", function () {
+            var url = followBtn.getAttribute("data-url");
+            window.Inkwell.post(url).then(function (data) {
+                if (data.error) return;
+                followBtn.innerHTML = data.following
+                    ? '<i class="fa-solid fa-user-check"></i> Following'
+                    : '<i class="fa-solid fa-plus"></i> Follow';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

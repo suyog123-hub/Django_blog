@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My stories — Inkwell{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header animate-slide-up">
+        <div class="flex-between" style="align-items:flex-end;flex-wrap:wrap;gap:16px">
+            <div>
+                <span class="eyebrow"><i class="fa-solid fa-file-lines"></i> Your workspace</span>
+                <h1 class="display-font">My <span class="text-gradient">stories</span></h1>
+                <p>Drafts, scheduled posts and everything you've published.</p>
+            </div>
+            <a href="{% url 'blog_create' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New story</a>
+        </div>
+    </div>
+
+    <div class="manage-tabs">
+        <button class="tab-btn active" data-tab="published">Published <span class="text-3">({{ published|length }})</span></button>
+        <button class="tab-btn" data-tab="drafts">Drafts <span class="text-3">({{ drafts|length }})</span></button>
+        {% if scheduled %}<button class="tab-btn" data-tab="scheduled">Scheduled <span class="text-3">({{ scheduled|length }})</span></button>{% endif %}
+    </div>
+
+    <div class="tab-pane" data-pane="published">
+        {% for blog in published %}
+        <div class="manage-card">
+            {% if blog.cover_image %}
+            <img class="thumb" src="{{ blog.cover_image.url }}" alt="{{ blog.title }}" loading="lazy" />
+            {% else %}<div class="thumb ph"><i class="fa-solid fa-image"></i></div>{% endif %}
+            <div class="info">
+                <h3><a href="{{ blog.get_absolute_url }}">{{ blog.title }}</a></h3>
+                <div class="meta"><i class="fa-solid fa-eye"></i> {{ blog.view_count }} views · <i class="fa-solid fa-heart"></i> {{ blog.like_count }} · Published {{ blog.published_at|date:"M j, Y" }}</div>
+            </div>
+            <div class="ops">
+                <a href="{{ blog.get_absolute_url }}" class="btn btn-ghost btn-sm"><i class="fa-solid fa-eye"></i></a>
+                <a href="{% url 'blog_edit' blog.slug %}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-pen"></i> Edit</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state"><div class="ico"><i class="fa-solid fa-newspaper"></i></div><h3>Nothing published yet</h3><p>Share your first story with the world.</p><a href="{% url 'blog_create' %}" class="btn btn-primary">Write a story</a></div>
+        {% endfor %}
+    </div>
+
+    <div class="tab-pane" data-pane="drafts" style="display:none">
+        {% for blog in drafts %}
+        <div class="manage-card">
+            {% if blog.cover_image %}<img class="thumb" src="{{ blog.cover_image.url }}" alt="{{ blog.title }}" loading="lazy" />{% else %}<div class="thumb ph"><i class="fa-solid fa-image"></i></div>{% endif %}
+            <div class="info">
+                <h3><a href="{% url 'blog_edit' blog.slug %}">{{ blog.title|default:"Untitled draft" }}</a></h3>
+                <div class="meta">Last edited {{ blog.updated_at|date:"M j, Y · H:i" }}</div>
+            </div>
+            <div class="ops">
+                <a href="{% url 'blog_edit' blog.slug %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen-nib"></i> Continue writing</a>
+                <form method="POST" action="{% url 'delete_blog' blog.pk %}" onsubmit="return confirm('Delete this draft? This cannot be undone.');">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm" type="submit"><i class="fa-solid fa-trash"></i></button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state"><div class="ico"><i class="fa-regular fa-file-lines"></i></div><h3>No drafts</h3><p>Drafts you start save here automatically.</p><a href="{% url 'blog_create' %}" class="btn btn-primary">Start writing</a></div>
+        {% endfor %}
+    </div>
+
+    {% if scheduled %}
+    <div class="tab-pane" data-pane="scheduled" style="display:none">
+        {% for blog in scheduled %}
+        <div class="manage-card">
+            {% if blog.cover_image %}<img class="thumb" src="{{ blog.cover_image.url }}" alt="{{ blog.title }}" loading="lazy" />{% else %}<div class="thumb ph"><i class="fa-solid fa-image"></i></div>{% endif %}
+            <div class="info">
+                <h3><a href="{% url 'blog_edit' blog.slug %}">{{ blog.title }}</a></h3>
+                <div class="meta"><span class="badge badge-warning" style="font-size:.65rem"><i class="fa-solid fa-clock"></i> Goes live {{ blog.published_at|date:"M j, Y · H:i" }}</span></div>
+            </div>
+            <div class="ops"><a href="{% url 'blog_edit' blog.slug %}" class="btn btn-secondary btn-sm">Edit</a></div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll(".tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        document.querySelectorAll(".tab-pane").forEach(function (p) { p.style.display = "none"; });
+        var pane = document.querySelector('[data-pane="' + btn.getAttribute("data-tab") + '"]');
+        if (pane) pane.style.display = "block";
+    });
+});
+</script>
+{% endblock %}

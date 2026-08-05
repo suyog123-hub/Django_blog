@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Review queue — Inkwell{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header animate-slide-up">
+        <span class="eyebrow"><i class="fa-solid fa-clock-rotate-left"></i> Moderation</span>
+        <h1 class="display-font">Pending <span class="text-gradient">reviews</span></h1>
+        <p>Approve submissions to publish them, or delete anything inappropriate.</p>
+    </div>
+
+    {% if blogs %}
+    {% for blog in blogs %}
+    <div class="manage-card">
+        {% if blog.cover_image %}
+        <img class="thumb" src="{{ blog.cover_image.url }}" alt="{{ blog.title }}" loading="lazy" />
+        {% else %}<div class="thumb ph"><i class="fa-solid fa-image"></i></div>{% endif %}
+        <div class="info">
+            <h3>{{ blog.title }}</h3>
+            <div class="meta">By <a href="{% url 'profile_detail' blog.author.username %}">{{ blog.author.username }}</a> · Submitted {{ blog.created_at|date:"M j, Y" }}</div>
+            <p class="text-2 text-sm mt-1">{{ blog.excerpt|default:blog.content|truncatewords:24 }}</p>
+        </div>
+        <div class="ops">
+            <a href="{% url 'blog_edit' blog.slug %}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eye"></i> Review</a>
+            <a href="{% url 'approve_blog' blog.pk %}" class="btn btn-success btn-sm"><i class="fa-solid fa-check"></i> Approve</a>
+            <form method="POST" action="{% url 'delete_blog' blog.pk %}" onsubmit="return confirm('Delete this post permanently?');">
+                {% csrf_token %}
+                <button class="btn btn-danger btn-sm" type="submit"><i class="fa-solid fa-trash"></i></button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <div class="ico"><i class="fa-solid fa-circle-check"></i></div>
+        <h3>All caught up!</h3>
+        <p>No posts are waiting for review. Nice work.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
