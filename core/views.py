@@ -6,6 +6,9 @@ from django.contrib.auth.models import User
 
 from .models import Blog
 
+# If you have a Comment model, uncomment this:
+# from .models import Blog, Comment
+
 
 def homePage(request):
     return render(request, "crud_enotes/home.html")
@@ -53,6 +56,27 @@ def loginPage(request):
 def logoutUser(request):
     logout(request)
     return redirect("home")
+
+
+@login_required(login_url="login")
+def profilePage(request):
+    """
+    Display user profile with statistics and recent posts.
+    """
+    user = request.user
+    user_blogs = Blog.objects.filter(author=user).order_by('-created_date')
+    
+    # If you have a Comment model, count the user's comments:
+    # user_comments = Comment.objects.filter(author=user).count()
+    
+    context = {
+        "user": user,
+        "total_blogs": user_blogs.count(),
+        "total_comments": 0,  # Replace with user_comments if you have a Comment model
+        "recent_blogs": user_blogs[:5],  # Show last 5 blogs
+        "is_admin": user.is_staff,
+    }
+    return render(request, "crud_enotes/profile.html", context)
 
 
 @login_required(login_url="login")

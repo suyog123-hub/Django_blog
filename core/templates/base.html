@@ -1,57 +1,81 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}MyBlog{% endblock title %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
-
 <body>
 
     <nav class="navbar">
         <div class="container navbar-inner">
-            <a class="brand" href="{% url 'home' %}">MyBlog</a>
+            <a class="brand" href="{% url 'home' %}">
+                <i class="fas fa-feather-alt"></i> MyBlog
+            </a>
             <ul class="nav-links">
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'blogs' %}">Blog</a></li>
+                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="{% url 'blogs' %}"><i class="fas fa-blog"></i> Blog</a></li>
+
                 {% if user.is_authenticated %}
-                <li><a href="{% url 'addBlog' %}">Write Blog</a></li>
-                <li><a href="{% url 'myBlogs' %}">My Blogs</a></li>
-                {% if user.is_staff %}
-                <li><a href="{% url 'pending' %}">Pending</a></li>
-                {% endif %}
-                <li><a href="{% url 'logout' %}">Logout ({{ user.username }})</a></li>
+                    <!-- Authenticated user links -->
+
+                    {% if user.is_staff %}
+                        <li><a href="{% url 'pending' %}"><i class="fas fa-clock"></i> Pending</a></li>
+                    {% endif %}
+
+                    <!-- Profile link (only for logged-in users) -->
+                    <li class="nav-profile">
+                        <a href="{% url 'profile' %}" class="profile-link">
+                            <i class="fas fa-user-circle"></i>
+                            <span>{{ user.username }}</span>
+                            <span class="profile-badge">Profile</span>
+                        </a>
+                    </li>
+
+                    <li><a href="{% url 'logout' %}" class="nav-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+
                 {% else %}
-                <li><a href="{% url 'login' %}">Login</a></li>
+                    <!-- Guest links -->
+                    <li><a href="{% url 'login' %}" class="nav-login"><i class="fas fa-key"></i> Login</a></li>
+                    <li><a href="{% url 'register' %}" class="nav-register"><i class="fas fa-user-plus"></i> Register</a></li>
                 {% endif %}
             </ul>
         </div>
     </nav>
 
-    <main class="container">
-
+    <main class="container main-content">
         {% if messages %}
         <div class="messages">
             {% for message in messages %}
-            <p class="alert alert-{{ message.tags }}">{{ message }}</p>
+            <div class="alert alert-{{ message.tags }}">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
             {% endfor %}
         </div>
         {% endif %}
 
         {% block content %}
         {% endblock content %}
-
     </main>
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 MyBlog. All rights reserved.</p>
+            <p>
+                <i class="fas fa-crown"></i>
+                &copy; 2026 <span class="footer-brand">MyBlog</span>.
+                Crafted with <i class="fas fa-heart" style="color: #ef4444;"></i>
+                <span class="footer-divider">|</span>
+                All rights reserved.
+            </p>
         </div>
     </footer>
 
 </body>
-
 </html>

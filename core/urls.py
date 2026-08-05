@@ -14,4 +14,5 @@ urlpatterns = [
     path("delete_blog/<int:id>/", views.deleteBlog, name="deleteBlog"),
     path("pending/", views.pendingBlogsPage, name="pending"),
     path("approve_blog/<int:id>/", views.approveBlog, name="approveBlog"),
+    path("profile/", views.profilePage, name="profile"),
 ]
