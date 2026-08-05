@@ -1,6 +1,7 @@
 asgiref==3.12.1
 bleach==6.4.0
 Django==6.0.7
+gunicorn==26.0.0
 django-jazzmin==3.0.5
 markdown==3.10.3
 pillow==12.3.0
