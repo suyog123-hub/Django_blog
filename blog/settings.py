@@ -1,9 +1,4 @@
-"""
-Django settings for the blog project.
 
-Configuration is driven by environment variables (via python-decouple) so
-the same codebase runs safely in development and production.
-"""
 
 from pathlib import Path
 
