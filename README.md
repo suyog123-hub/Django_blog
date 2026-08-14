@@ -2,7 +2,7 @@
 
 A simple and clean blogging platform built with Django where anyone can create an account, write a blog post, and get it published after admin approval.
 
-**Live Demo:** [https://django-blog-7lqy.onrender.com/](https://django-blog-7lqy.onrender.com/)
+**Live Demo:** [https://suyogblog.onrender.com/](https://django-blog-7lqy.onrender.com/)
 
 ## Features
 
