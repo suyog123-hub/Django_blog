@@ -400,6 +400,37 @@ def add_comment(request, pk):
 
 
 @login_required
+def edit_comment(request, pk):
+    comment = get_object_or_404(
+        Comment.objects.select_related("blog", "author"), pk=pk
+    )
+    if comment.author != request.user and not request.user.is_staff:
+        raise PermissionDenied
+    if request.method != "POST":
+        return redirect(f"{comment.blog.get_absolute_url()}#c-{comment.pk}")
+    form = CommentForm(request.POST, instance=comment)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Comment updated.")
+    else:
+        messages.error(request, "Comment could not be saved.")
+    return redirect(f"{comment.blog.get_absolute_url()}#c-{comment.pk}")
+
+
+@login_required
+def delete_comment(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    if comment.author != request.user and not request.user.is_staff:
+        raise PermissionDenied
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+    url = f"{comment.blog.get_absolute_url()}#comments"
+    comment.delete()
+    messages.success(request, "Comment deleted.")
+    return redirect(url)
+
+
+@login_required
 def toggle_follow(request, username):
     target = get_object_or_404(User, username=username)
     if target == request.user:

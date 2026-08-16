@@ -101,6 +101,8 @@ urlpatterns = [
     path("like/<int:pk>/", views.toggle_like, name="toggle_like"),
     path("bookmark/<int:pk>/", views.toggle_bookmark, name="toggle_bookmark"),
     path("comment/<int:pk>/", views.add_comment, name="add_comment"),
+    path("comment/<int:pk>/edit/", views.edit_comment, name="edit_comment"),
+    path("comment/<int:pk>/delete/", views.delete_comment, name="delete_comment"),
     path("comment-like/<int:pk>/", views.toggle_comment_like, name="toggle_comment_like"),
 
     # --- Moderation --------------------------------------------------------

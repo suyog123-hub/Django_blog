@@ -178,7 +178,7 @@
         {% if comments %}
         <div class="comments">
             {% for comment in comments %}
-            <div class="comment-card">
+            <div class="comment-card" id="c-{{ comment.pk }}">
                 <div class="comment-head">
                     <a href="{% url 'profile_detail' comment.author.username %}">
                         {% if comment.author.profile.avatar %}<img class="avatar avatar-sm" src="{{ comment.author.profile.avatar.url }}" alt="{{ comment.author.username }}" />{% else %}<span class="avatar-fallback avatar-sm">{{ comment.author.username|first|upper }}</span>{% endif %}
@@ -188,7 +188,7 @@
                         <div class="d">{{ comment.created_at|timesince_short }} ago</div>
                     </div>
                 </div>
-                <div class="comment-body">{{ comment.content|linebreaksbr }}</div>
+                <div class="comment-body" data-comment-body>{{ comment.content|linebreaksbr }}</div>
                 <div class="comment-foot">
                     <button class="{% if user in comment.likes.all %}liked{% endif %}" data-comment-like data-url="{% url 'toggle_comment_like' comment.pk %}" data-count-target="#comment-like-{{ comment.pk }}">
                         <i class="fa-solid fa-heart"></i> <span id="comment-like-{{ comment.pk }}">{{ comment.like_count }}</span>
@@ -196,13 +196,31 @@
                     {% if user.is_authenticated %}
                     <button class="reply-link" data-reply-toggle="reply-{{ comment.pk }}" data-comment-id="{{ comment.pk }}">Reply</button>
                     {% endif %}
+                    {% if user == comment.author or user.is_staff %}
+                    <button class="link-btn" data-reply-toggle="edit-{{ comment.pk }}">Edit</button>
+                    <form method="POST" action="{% url 'delete_comment' comment.pk %}" class="inline-form" onsubmit="return confirm('Delete this comment?');">
+                        {% csrf_token %}
+                        <button class="link-btn link-danger" type="submit">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                <div class="comment-form-wrap hidden-form" id="edit-{{ comment.pk }}">
+                    <form method="POST" action="{% url 'edit_comment' comment.pk %}" class="card-panel" style="padding:16px">
+                        {% csrf_token %}
+                        <textarea name="content" class="form-control" rows="3" maxlength="2000" required>{{ comment.content }}</textarea>
+                        <div class="flex gap-2 mt-2" style="justify-content:flex-end">
+                            <button class="btn btn-secondary btn-sm" type="button" data-reply-toggle="edit-{{ comment.pk }}">Cancel</button>
+                            <button class="btn btn-primary btn-sm" type="submit">Save</button>
+                        </div>
+                    </form>
                 </div>
 
                 {% if comment.replies.all %}
                 <div class="comment-replies">
                     {% for reply in comment.replies.all %}
                     {% if reply.is_approved %}
-                    <div class="comment-card" style="margin-bottom:10px">
+                    <div class="comment-card" id="c-{{ reply.pk }}" style="margin-bottom:10px">
                         <div class="comment-head">
                             <a href="{% url 'profile_detail' reply.author.username %}">
                                 {% if reply.author.profile.avatar %}<img class="avatar avatar-sm" src="{{ reply.author.profile.avatar.url }}" alt="{{ reply.author.username }}" />{% else %}<span class="avatar-fallback avatar-sm">{{ reply.author.username|first|upper }}</span>{% endif %}
@@ -212,11 +230,28 @@
                                 <div class="d">{{ reply.created_at|timesince_short }} ago</div>
                             </div>
                         </div>
-                        <div class="comment-body">{{ reply.content|linebreaksbr }}</div>
+                        <div class="comment-body" data-comment-body>{{ reply.content|linebreaksbr }}</div>
                         <div class="comment-foot">
                             <button class="{% if user in reply.likes.all %}liked{% endif %}" data-comment-like data-url="{% url 'toggle_comment_like' reply.pk %}" data-count-target="#comment-like-{{ reply.pk }}">
                                 <i class="fa-solid fa-heart"></i> <span id="comment-like-{{ reply.pk }}">{{ reply.like_count }}</span>
                             </button>
+                            {% if user == reply.author or user.is_staff %}
+                            <button class="link-btn" data-reply-toggle="edit-{{ reply.pk }}">Edit</button>
+                            <form method="POST" action="{% url 'delete_comment' reply.pk %}" class="inline-form" onsubmit="return confirm('Delete this comment?');">
+                                {% csrf_token %}
+                                <button class="link-btn link-danger" type="submit">Delete</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        <div class="comment-form-wrap hidden-form" id="edit-{{ reply.pk }}">
+                            <form method="POST" action="{% url 'edit_comment' reply.pk %}" class="card-panel" style="padding:16px">
+                                {% csrf_token %}
+                                <textarea name="content" class="form-control" rows="3" maxlength="2000" required>{{ reply.content }}</textarea>
+                                <div class="flex gap-2 mt-2" style="justify-content:flex-end">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-reply-toggle="edit-{{ reply.pk }}">Cancel</button>
+                                    <button class="btn btn-primary btn-sm" type="submit">Save</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     {% endif %}
