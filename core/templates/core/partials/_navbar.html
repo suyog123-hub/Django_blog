@@ -11,6 +11,7 @@
             <li><a href="{% url 'home' %}" class="{% active_nav request 'home' %}"><i class="fa-solid fa-house"></i> Home</a></li>
             <li><a href="{% url 'blogs' %}" class="{% active_nav request 'blogs' 'blogs_by_category' 'blogs_by_tag' %}"><i class="fa-solid fa-newspaper"></i> Articles</a></li>
             <li><a href="{% url 'authors' %}" class="{% active_nav request 'authors' %}"><i class="fa-solid fa-users"></i> Writers</a></li>
+            <li><a href="{% url 'random_blog' %}" title="Surprise me"><i class="fa-solid fa-dice"></i> Random</a></li>
             {% if user.is_authenticated %}
             <li><a href="{% url 'blog_create' %}" class="{% active_nav request 'blog_create' 'blog_edit' %}"><i class="fa-solid fa-pen-nib"></i> Write</a></li>
             {% if user.is_staff %}
@@ -81,6 +82,7 @@
     <a class="m-link" href="{% url 'home' %}"><i class="fa-solid fa-house"></i> Home</a>
     <a class="m-link" href="{% url 'blogs' %}"><i class="fa-solid fa-newspaper"></i> Articles</a>
     <a class="m-link" href="{% url 'authors' %}"><i class="fa-solid fa-users"></i> Writers</a>
+    <a class="m-link" href="{% url 'random_blog' %}"><i class="fa-solid fa-dice"></i> Surprise me</a>
     <a class="m-link" href="{% url 'contact' %}"><i class="fa-solid fa-envelope"></i> Contact</a>
     {% if user.is_authenticated %}
     <a class="m-link" href="{% url 'blog_create' %}"><i class="fa-solid fa-pen-nib"></i> Write a story</a>

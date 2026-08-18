@@ -20,6 +20,7 @@ urlpatterns = [
         name="blogs_by_tag",
     ),
     path("blog/<slug:slug>/", views.blog_detail_page, name="blog_detail"),
+    path("random/", views.random_blog, name="random_blog"),
     path("authors/", views.authors_page, name="authors"),
 
     # --- Search ------------------------------------------------------------

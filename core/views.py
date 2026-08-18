@@ -139,6 +139,15 @@ def home_page(request):
 # ---------------------------------------------------------------------------
 # Blog listing
 # ---------------------------------------------------------------------------
+def random_blog(request):
+    """Jump to a random published post. Pure fun, no tracking."""
+    blog = services.Blog.objects.published().order_by("?").first()
+    if not blog:
+        messages.info(request, "No articles yet — check back soon!")
+        return redirect("blogs")
+    return redirect(blog.get_absolute_url())
+
+
 def _apply_filters(request, category_slug=None, tag_slug=None):
     qs = Blog.objects.published().with_relations().with_counts()
     filters = {}
