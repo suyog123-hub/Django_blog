@@ -14,6 +14,9 @@
 {% block twitter_description %}{{ blog.excerpt|default:blog.content|truncatechars:160 }}{% endblock %}
 
 {% block content %}
+<!-- READING PROGRESS -->
+<div class="reading-progress" data-reading-progress aria-hidden="true"><span></span></div>
+
 <!-- HERO -->
 <header class="blog-hero">
     <div class="container">

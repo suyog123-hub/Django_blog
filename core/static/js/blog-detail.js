@@ -99,8 +99,23 @@
     });
   }
 
+  /* ---------- Reading progress -------------------------------- */
+  function initReadingProgress() {
+    var bar = doc.querySelector("[data-reading-progress]");
+    if (!bar) return;
+    var fill = bar.querySelector("span");
+    function onScroll() {
+      var total = doc.documentElement.scrollHeight - window.innerHeight;
+      var pct = total > 0 ? (window.scrollY / total) * 100 : 0;
+      fill.style.width = pct + "%";
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+
   initToc();
   initEngagement();
   initShare();
   initReplies();
+  initReadingProgress();
 })();

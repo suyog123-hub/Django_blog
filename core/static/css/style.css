@@ -1519,3 +1519,15 @@ input[type="file"].form-control { padding: 10px; }
   }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* ---------- Reading progress bar ----------------------------- */
+.reading-progress {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+  height: 3px; background: transparent; pointer-events: none;
+}
+.reading-progress span {
+  display: block; height: 100%; width: 0%;
+  background: var(--gradient);
+  border-radius: 0 2px 2px 0;
+  transition: width .08s linear;
+}
