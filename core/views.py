@@ -775,8 +775,8 @@ def my_blogs(request):
         .order_by("-updated_at")
     )
     drafts = [b for b in blogs if b.status == Blog.Status.DRAFT]
-    published = [b for b in blogs if b.status == Blog.Status.PUBLISHED]
     scheduled = [b for b in blogs if b.status == Blog.Status.PUBLISHED and b.published_at and b.published_at > timezone.now()]
+    published = [b for b in blogs if b.status == Blog.Status.PUBLISHED and b not in scheduled]
     context = {"drafts": drafts, "published": published, "scheduled": scheduled}
     return render(request, "core/my_blogs.html", context)
 
